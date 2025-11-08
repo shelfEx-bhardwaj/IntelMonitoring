@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Activity, Calendar, Clock, AlertCircle, CheckCircle, XCircle, Loader, RefreshCw, Trash2, PlayCircle, StopCircle, Eye, Search, Filter, TrendingUp } from 'lucide-react';
+import { Activity, Calendar, Clock, AlertCircle, CheckCircle, XCircle, Loader, RefreshCw, Trash2, PlayCircle, StopCircle, Eye, Search } from 'lucide-react';
 
 const API_BASE = 'https://unhaltered-giuliana-complementally.ngrok-free.dev';
 
@@ -46,7 +46,6 @@ const ScraperMonitor = () => {
       const data = await response.json();
       setTasks(data.recent_tasks || []);
       
-      // Calculate stats
       const stats = {
         total: data.recent_tasks?.length || 0,
         running: data.recent_tasks?.filter(t => t.status === 'RUNNING').length || 0,
@@ -215,7 +214,6 @@ const ScraperMonitor = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
@@ -251,7 +249,6 @@ const ScraperMonitor = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-5 gap-4 mb-6">
           <StatCard icon={Activity} label="Total Tasks" value={stats.total} color="blue" />
           <StatCard icon={Loader} label="Running" value={stats.running} color="blue" />
@@ -260,7 +257,6 @@ const ScraperMonitor = () => {
           <StatCard icon={Calendar} label="Recurring" value={stats.scheduled} color="purple" />
         </div>
 
-        {/* Tabs */}
         <div className="bg-white rounded-lg shadow-lg mb-6">
           <div className="flex border-b">
             <button
@@ -295,7 +291,6 @@ const ScraperMonitor = () => {
             </button>
           </div>
 
-          {/* Search and Filter */}
           {(activeTab === 'tasks' || activeTab === 'schedules') && (
             <div className="p-4 border-b flex gap-4">
               <div className="flex-1 relative">
@@ -324,7 +319,6 @@ const ScraperMonitor = () => {
             </div>
           )}
 
-          {/* Content */}
           <div className="p-6">
             {activeTab === 'tasks' && (
               <TasksView
@@ -355,7 +349,6 @@ const ScraperMonitor = () => {
           </div>
         </div>
 
-        {/* Task Details Panel */}
         {selectedTask && (
           <TaskDetailsPanel
             task={selectedTask}
@@ -416,36 +409,7 @@ const TasksView = ({ tasks, selectedTask, onSelectTask, onCancelTask, getStatusI
                   <span className="font-mono text-sm text-gray-600 truncate">
                     {task.task_id.slice(0, 8)}...
                   </span>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(status)}`}>
-        {status}
-      </span>
-    </div>
-    {result && (
-      <div className="text-xs text-gray-600 space-y-1 mt-2">
-        {result.output_path && (
-          <p className="truncate">📁 {result.output_path}</p>
-        )}
-        {result.connection_type && (
-          <p>🌐 {result.connection_type}</p>
-        )}
-        {result.attempt && (
-          <p>🔄 Attempt {result.attempt}</p>
-        )}
-        {result.cleaned !== undefined && (
-          <p>✨ Cleaned: {result.cleaned ? 'Yes' : 'No'}</p>
-        )}
-        {result.completed_at && (
-          <p>⏱️ {new Date(result.completed_at).toLocaleTimeString()}</p>
-        )}
-        {result.error && (
-          <p className="text-red-600 mt-1">❌ {result.error}</p>
-        )}
-      </div>
-    )}
-  </div>
-);
-
-export default ScraperMonitor;-2 py-1 rounded text-xs font-medium ${getStatusColor(task.status)}`}>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(task.status)}`}>
                     {task.status}
                   </span>
                   {task.recurring && (
@@ -487,7 +451,6 @@ export default ScraperMonitor;-2 py-1 rounded text-xs font-medium ${getStatusCol
             </div>
           </div>
           
-          {/* Platform Status Pills */}
           {(task.swiggy_status || task.zepto_status || task.blinkit_status) && (
             <div className="flex gap-2 mt-3 pt-3 border-t">
               {task.swiggy_status && (
@@ -746,4 +709,33 @@ const PlatformDetail = ({ name, status, result, getStatusIcon, getStatusColor })
     <div className="flex items-center gap-2 mb-2">
       {getStatusIcon(status)}
       <span className="font-medium">{name}</span>
-      <span className={`px
+      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(status)}`}>
+        {status}
+      </span>
+    </div>
+    {result && (
+      <div className="text-xs text-gray-600 space-y-1 mt-2">
+        {result.output_path && (
+          <p className="truncate">📁 {result.output_path}</p>
+        )}
+        {result.connection_type && (
+          <p>🌐 {result.connection_type}</p>
+        )}
+        {result.attempt && (
+          <p>🔄 Attempt {result.attempt}</p>
+        )}
+        {result.cleaned !== undefined && (
+          <p>✨ Cleaned: {result.cleaned ? 'Yes' : 'No'}</p>
+        )}
+        {result.completed_at && (
+          <p>⏱️ {new Date(result.completed_at).toLocaleTimeString()}</p>
+        )}
+        {result.error && (
+          <p className="text-red-600 mt-1">❌ {result.error}</p>
+        )}
+      </div>
+    )}
+  </div>
+);
+
+export default ScraperMonitor;
