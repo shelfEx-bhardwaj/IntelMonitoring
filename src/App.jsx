@@ -3,6 +3,17 @@ import { Activity, Calendar, Clock, AlertCircle, CheckCircle, XCircle, Loader, R
 
 const API_BASE = 'https://unhaltered-giuliana-complementally.ngrok-free.dev';
 
+// Helper function to add ngrok bypass header to all requests
+const fetchWithNgrokBypass = (url, options = {}) => {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'ngrok-skip-browser-warning': 'true'
+    }
+  });
+};
+
 const ScraperMonitor = () => {
   const [tasks, setTasks] = useState([]);
   const [schedules, setSchedules] = useState([]);
@@ -31,7 +42,7 @@ const ScraperMonitor = () => {
 
   const fetchTasks = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/tasks?limit=50`);
+      const response = await fetchWithNgrokBypass(`${API_BASE}/tasks?limit=50`);
       const data = await response.json();
       setTasks(data.recent_tasks || []);
       
@@ -51,7 +62,7 @@ const ScraperMonitor = () => {
 
   const fetchSchedules = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/schedules`);
+      const response = await fetchWithNgrokBypass(`${API_BASE}/schedules`);
       const data = await response.json();
       setSchedules(data.all_schedules || []);
       setStats(prev => ({ ...prev, scheduled: data.active_recurring || 0 }));
@@ -62,7 +73,7 @@ const ScraperMonitor = () => {
 
   const fetchHealth = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/health`);
+      const response = await fetchWithNgrokBypass(`${API_BASE}/health`);
       const data = await response.json();
       setHealth(data);
     } catch (error) {
@@ -73,7 +84,7 @@ const ScraperMonitor = () => {
 
   const fetchTaskDetails = async (taskId) => {
     try {
-      const response = await fetch(`${API_BASE}/status/${taskId}`);
+      const response = await fetchWithNgrokBypass(`${API_BASE}/status/${taskId}`);
       const data = await response.json();
       setSelectedTask(data);
     } catch (error) {
@@ -85,7 +96,7 @@ const ScraperMonitor = () => {
     if (!confirm('Are you sure you want to cancel this task?')) return;
     
     try {
-      await fetch(`${API_BASE}/endScrape/${taskId}`, { method: 'DELETE' });
+      await fetchWithNgrokBypass(`${API_BASE}/endScrape/${taskId}`, { method: 'DELETE' });
       fetchTasks();
       if (selectedTask?.task_id === taskId) setSelectedTask(null);
     } catch (error) {
@@ -98,7 +109,7 @@ const ScraperMonitor = () => {
     if (!confirm('Are you sure you want to cancel this schedule?')) return;
     
     try {
-      await fetch(`${API_BASE}/schedules/${scheduleId}`, { method: 'DELETE' });
+      await fetchWithNgrokBypass(`${API_BASE}/schedules/${scheduleId}`, { method: 'DELETE' });
       fetchSchedules();
     } catch (error) {
       console.error('Failed to cancel schedule:', error);
@@ -117,7 +128,7 @@ const ScraperMonitor = () => {
         ? `${API_BASE}/scrape`
         : `${API_BASE}/scrape/${newTask.platform}`;
       
-      const response = await fetch(endpoint, {
+      const response = await fetchWithNgrokBypass(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask)
@@ -405,7 +416,36 @@ const TasksView = ({ tasks, selectedTask, onSelectTask, onCancelTask, getStatusI
                   <span className="font-mono text-sm text-gray-600 truncate">
                     {task.task_id.slice(0, 8)}...
                   </span>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(task.status)}`}>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(status)}`}>
+        {status}
+      </span>
+    </div>
+    {result && (
+      <div className="text-xs text-gray-600 space-y-1 mt-2">
+        {result.output_path && (
+          <p className="truncate">📁 {result.output_path}</p>
+        )}
+        {result.connection_type && (
+          <p>🌐 {result.connection_type}</p>
+        )}
+        {result.attempt && (
+          <p>🔄 Attempt {result.attempt}</p>
+        )}
+        {result.cleaned !== undefined && (
+          <p>✨ Cleaned: {result.cleaned ? 'Yes' : 'No'}</p>
+        )}
+        {result.completed_at && (
+          <p>⏱️ {new Date(result.completed_at).toLocaleTimeString()}</p>
+        )}
+        {result.error && (
+          <p className="text-red-600 mt-1">❌ {result.error}</p>
+        )}
+      </div>
+    )}
+  </div>
+);
+
+export default ScraperMonitor;-2 py-1 rounded text-xs font-medium ${getStatusColor(task.status)}`}>
                     {task.status}
                   </span>
                   {task.recurring && (
@@ -706,33 +746,4 @@ const PlatformDetail = ({ name, status, result, getStatusIcon, getStatusColor })
     <div className="flex items-center gap-2 mb-2">
       {getStatusIcon(status)}
       <span className="font-medium">{name}</span>
-      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(status)}`}>
-        {status}
-      </span>
-    </div>
-    {result && (
-      <div className="text-xs text-gray-600 space-y-1 mt-2">
-        {result.output_path && (
-          <p className="truncate">📁 {result.output_path}</p>
-        )}
-        {result.connection_type && (
-          <p>🌐 {result.connection_type}</p>
-        )}
-        {result.attempt && (
-          <p>🔄 Attempt {result.attempt}</p>
-        )}
-        {result.cleaned !== undefined && (
-          <p>✨ Cleaned: {result.cleaned ? 'Yes' : 'No'}</p>
-        )}
-        {result.completed_at && (
-          <p>⏱️ {new Date(result.completed_at).toLocaleTimeString()}</p>
-        )}
-        {result.error && (
-          <p className="text-red-600 mt-1">❌ {result.error}</p>
-        )}
-      </div>
-    )}
-  </div>
-);
-
-export default ScraperMonitor;
+      <span className={`px
