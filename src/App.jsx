@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Activity, Calendar, Clock, AlertCircle, CheckCircle, XCircle, Loader, RefreshCw, Trash2, PlayCircle, StopCircle, Eye, Search, Filter, TrendingUp } from 'lucide-react';
 
-const API_BASE = 'http://35.238.75.9:8384';
+const API_BASE = 'https://35.238.75.9:8384';
 
 const ScraperMonitor = () => {
   const [tasks, setTasks] = useState([]);
