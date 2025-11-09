@@ -19,7 +19,7 @@ const ScraperMonitor = () => {
   const [schedules, setSchedules] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [health, setHealth] = useState(null);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('tasks');
@@ -167,7 +167,7 @@ const ScraperMonitor = () => {
       fetchSchedules();
       fetchHealth();
       if (selectedTask) fetchTaskDetails(selectedTask.task_id);
-    }, 5000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [autoRefresh, selectedTask, fetchTasks, fetchSchedules, fetchHealth]);
@@ -226,12 +226,14 @@ const ScraperMonitor = () => {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                  autoRefresh ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
+                  autoRefresh 
+                    ? 'bg-green-500 text-white hover:bg-green-600' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 <RefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
-                Auto-refresh: {autoRefresh ? 'ON' : 'OFF'}
+                {autoRefresh ? 'Monitoring ON (10s)' : 'Start Monitoring'}
               </button>
               {health && (
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
